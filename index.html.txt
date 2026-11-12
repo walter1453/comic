@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>coch comics </title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --header-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --accent-color: #ff4757;
+            --btn-bg: #2f3542;
+        }
+
+        body.light-theme {
+            --bg-color: #f4f4f9;
+            --header-bg: #ffffff;
+            --text-color: #2f3542;
+            --btn-bg: #dfe4ea;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: system-ui, -apple-system, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        header {
+            background-color: var(--header-bg);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+        }
+
+        select, button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--btn-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        select:hover, button:hover {
+            opacity: 0.8;
+        }
+
+        .comic-info {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .comic-info p {
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+
+        .reader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #000;
+        }
+
+        .reader img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+        }
+
+        button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            opacity: 0.6;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-content">
+            <h1>Мои Комиксы</h1>
+            <div class="controls">
+                <select id="chapter-select" onchange="loadChapter()"></select>
+                <button id="theme-toggle" onclick="toggleTheme()">Светлая тема</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="comic-info">
+            <h2 id="comic-title"></h2>
+            <p id="comic-desc"></p>
+        </div>
+
+        <div id="reader-container" class="reader"></div>
+
+        <div class="navigation-buttons">
+            <button id="prev-btn" onclick="prevChapter()">← Предыдущая глава</button>
+            <button id="next-btn" onclick="nextChapter()">Следующая глава →</button>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 Мой Авторский Комикс</p>
+    </footer>
+
+    <script>
+        // СЮДА ДОБАВЛЯТЬ СВОИ ГЛАВЫ И КАРТИНКИ
+        const chapters = [
+            {
+                title: "Глава 1: Начало",
+                description: "Взломав сервер онлайн-казино ради любопытства, Коля случайно раскрывает зловещий заговор под кодовым названием «Коч Братан». Ему предстоит столкнуться с могущественными врагами, разгадать тайну исчезновения Ронни Макната и оказаться в эпицентре эпической битвы между Хранителем и Литвином.",
+                pages: [
+                    "comics/1.jpg",
+                    "comics/2.jpg"
+                ]
+            },
+            {
+                title: "Глава 2: Продолжение",
+                description: "Описание второй главы.",
+                pages: [
+                    "comics/3.jpg",
+                    "comics/4.jpg"
+                ]
+            }
+        ];
+
+        let currentChapterIndex = 0;
+        const chapterSelect = document.getElementById("chapter-select");
+        const readerContainer = document.getElementById("reader-container");
+        const comicTitle = document.getElementById("comic-title");
+        const comicDesc = document.getElementById("comic-desc");
+        const prevBtn = document.getElementById("prev-btn");
+        const nextBtn = document.getElementById("next-btn");
+
+        function init() {
+            chapters.forEach((chapter, index) => {
+                const option = document.createElement("option");
+                option.value = index;
+                option.textContent = chapter.title;
+                chapterSelect.appendChild(option);
+            });
+            renderChapter(0);
+        }
+
+        function renderChapter(index) {
+            currentChapterIndex = index;
+            chapterSelect.value = index;
+            
+            const chapter = chapters[index];
+            comicTitle.textContent = chapter.title;
+            comicDesc.textContent = chapter.description;
+            
+            readerContainer.innerHTML = "";
+            
+            chapter.pages.forEach(pageSrc => {
+                const img = document.createElement("img");
+                img.src = pageSrc;
+                img.alt = chapter.title;
+                img.loading = "lazy";
+                readerContainer.appendChild(img);
+            });
+
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === chapters.length - 1;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function loadChapter() {
+            renderChapter(parseInt(chapterSelect.value));
+        }
+
+        function prevChapter() {
+            if (currentChapterIndex > 0) renderChapter(currentChapterIndex - 1);
+        }
+
+        function nextChapter() {
+            if (currentChapterIndex < chapters.length - 1) renderChapter(currentChapterIndex + 1);
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle("light-theme");
+            const btn = document.getElementById("theme-toggle");
+            btn.textContent = document.body.classList.contains("light-theme") ? "Темная тема" : "Светлая тема";
+        }
+
+        init();
+    </script>
+</body>
+</html>
